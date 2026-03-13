@@ -3,7 +3,7 @@ import sqlite3
 import pandas as pd
 
 
-class Database:
+class Register:
     index = 0
 
     def __init__(self):
@@ -63,20 +63,20 @@ class Database:
         print(pd.read_sql_query("SELECT * FROM transactions", self.connection))
 
 if __name__ == "__main__":
-    database = Database()
+    register = Register()
     while True:
         command = int(input("(1)add (2)delete (3)modify (4)view (5)exit: "))
         if command == 1:
-            database.addTransaction()
+            register.addTransaction()
         elif command == 2:
-            database.deleteTransaction()
+            register.deleteTransaction()
         elif command == 3:
-            database.modifyTransaction()
+            register.modifyTransaction()
         elif command == 4:
-            database.viewTransactions()
+            register.viewTransactions()
         elif command == 5:
-            database.connection.commit()
-            database.connection.close()
+            register.connection.commit()
+            register.connection.close()
             sys.exit(0)
         else: 
             continue
