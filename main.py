@@ -1,22 +1,31 @@
 import sys
 from register import Register
 
+def startup():
+    print('\n########## WELCOME TO FINANCE-CLI ##########\n')
+    print('Follow the prompts or type "exit" at any time to terminate the program.\n')
+
+def shutdown():
+    print('goodbye')
+    sys.exit(0)
+
 if __name__ == "__main__":
     register = Register()
+    startup()
     while True:
-        command = int(input("(1)add (2)delete (3)modify (4)view (5)exit: "))
-        if command == 1:
+        command = input("(1)add (2)delete (3)modify (4)view (5)exit: ")
+        if command == '1':
             register.addTransaction()
-        elif command == 2:
+        elif command == '2':
             register.deleteTransaction()
-        elif command == 3:
+        elif command == '3':
             register.modifyTransaction()
-        elif command == 4:
+        elif command == '4':
             register.viewTransactions()
-        elif command == 5:
+        elif command == '5' or command == 'exit':
             register.connection.commit()
             register.connection.close()
-            sys.exit(0)
+            shutdown()
         else: 
             continue
         
