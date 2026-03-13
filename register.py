@@ -17,7 +17,6 @@ class Register:
         account = str(input("Account Name: "))
         self.cursor.execute('SELECT COUNT(*) FROM transactions')
         length = self.cursor.fetchone()[0]
-        print(f"current table length is {length}")
         if length != 0:
             self.cursor.execute("SELECT MAX(id) from transactions")
             self.index = self.cursor.fetchone()[0] + 1
