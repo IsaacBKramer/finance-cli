@@ -10,9 +10,10 @@ class Register:
         self.cursor.execute('CREATE TABLE IF NOT EXISTS transactions (id integer, year integer, month integer, day integer, value real, account text)')
 
     def addTransaction(self):
-        year = int(input("Year: "))
-        month = int(input("Month: "))
-        day = int(input("Day: "))
+        date = input("Date YYYYMMDD: ")
+        year = int(date[0:4])
+        month = int(date[4:6])
+        day = int(date[6:])
         value = float(input("Value: "))
         account = str(input("Account Name: "))
         self.cursor.execute('SELECT COUNT(*) FROM transactions')
@@ -34,20 +35,19 @@ class Register:
 
     def modifyTransaction(self):
         id = int(input("id: "))
-        command = int(input("(1)year (2)month (3)day (4)value (5)account"))
+        command = int(input("(1)date (2)value (3)account"))
         if command == 1:
-            year = int(input("Year: "))
+            date = int(input("Date YYYYMMDD: "))
+            year = int(date[0:4])
+            month = int(date[4:6])
+            day = int(date[6:])
             set = f'SET year = {year}'
-        elif command == 2:
-            month = int(input("Month: "))
             set = f'SET month = {month}'
-        elif command == 3:
-            day = int(input("Day: "))
             set = f'SET day = {day}'
-        elif command == 4:
+        elif command == 2:
             value = float(input("Value: "))
             set = f'SET value = {value}'
-        elif command == 5:
+        elif command == 3:
             account = int(input("Account Name: "))
             set = f'SET account = {account}'
         else:
