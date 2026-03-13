@@ -58,3 +58,14 @@ class Register:
 
     def viewTransactions(self):
         print(pd.read_sql_query("SELECT * FROM transactions", self.connection))
+
+    def viewAnnualTotal(self):
+        totals = {}
+        self.cursor.execute('SELECT DISTINCT year FROM transactions')
+        years = self.cursor.fetchall()
+        years = [row[0] for row in years]
+        for year in years:
+            self.cursor.execute(f'SELECT SUM(value) FROM transactions WHERE year <= {year}')
+            total = self.cursor.fetchone()
+            totals[year] = total[0]
+        print(totals)

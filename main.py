@@ -13,7 +13,7 @@ if __name__ == "__main__":
     register = Register()
     startup()
     while True:
-        command = input("(1)add (2)delete (3)modify (4)view (5)exit: ")
+        command = input("(1)add (2)delete (3)modify (4)register (5)totals (6)exit: ")
         if command == '1':
             register.addTransaction()
         elif command == '2':
@@ -22,7 +22,9 @@ if __name__ == "__main__":
             register.modifyTransaction()
         elif command == '4':
             register.viewTransactions()
-        elif command == '5' or command == 'exit':
+        elif command == '5':
+            register.viewAnnualTotal()
+        elif command == '6' or command == 'exit':
             register.connection.commit()
             register.connection.close()
             shutdown()
