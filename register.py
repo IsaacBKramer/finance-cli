@@ -9,6 +9,13 @@ class Register:
         self.cursor = self.connection.cursor()
         self.cursor.execute('CREATE TABLE IF NOT EXISTS transactions (id integer, year integer, month integer, day integer, value real, account text)')
 
+    def checkIndex(self):
+        self.cursor.execute('SELECT COUNT(*) FROM transactions')
+        length = self.cursor.fetchone()[0]
+        if length != 0:
+            self.cursor.execute("SELECT MAX(id) from transactions")
+            self.index = self.cursor.fetchone()[0] + 1
+
     def addTransaction(self):
         date = input("Date YYYYMMDD: ")
         year = int(date[0:4])
@@ -16,16 +23,12 @@ class Register:
         day = int(date[6:])
         value = float(input("Value: "))
         account = str(input("Account Name: "))
-        self.cursor.execute('SELECT COUNT(*) FROM transactions')
-        length = self.cursor.fetchone()[0]
-        if length != 0:
-            self.cursor.execute("SELECT MAX(id) from transactions")
-            self.index = self.cursor.fetchone()[0] + 1
+
         sql = 'INSERT INTO transactions (id, year, month, day, value, account) VALUES (?,?,?,?,?,?)'
         values = (self.index, year, month, day, value, account)
         self.cursor.execute(sql, values)
         self.connection.commit()
-        self.index = self.index + 1
+        self.index += 1
     
     def deleteTransaction(self):
         id = int(input("id: "))
