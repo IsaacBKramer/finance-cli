@@ -72,3 +72,12 @@ class Register:
             total = self.cursor.fetchone()
             totals[year] = total[0]
         print(totals)
+    
+    def addTransactionsFromCsv(self, csvfile):
+        df = pd.read_csv(csvfile)
+        for index,row in df.iterrows():
+            sql = 'INSERT INTO transactions (id, year, month, day, value, account) VALUES (?,?,?,?,?,?)'
+            values = (self.index, row['year'], row['month'], row['day'], row['value'], row['account'])
+            self.cursor.execute(sql, values)
+            self.index += 1
+        self.connection.commit()
