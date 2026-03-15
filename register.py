@@ -62,7 +62,7 @@ class Register:
     def viewTransactions(self):
         print(pd.read_sql_query("SELECT * FROM transactions", self.connection))
 
-    def viewAnnualTotal(self):
+    def viewAnnualTotals(self):
         totals = {}
         self.cursor.execute('SELECT DISTINCT year FROM transactions')
         years = self.cursor.fetchall()
@@ -71,6 +71,17 @@ class Register:
             self.cursor.execute(f'SELECT SUM(value) FROM transactions WHERE year <= {year}')
             total = self.cursor.fetchone()
             totals[year] = total[0]
+        print(totals)
+
+    def viewAccountTotals(self):
+        totals = {}
+        self.cursor.execute('SELECT DISTINCT account FROM transactions')
+        accounts = self.cursor.fetchall()
+        accounts = [row[0] for row in accounts]
+        for account in accounts:
+            self.cursor.execute(f'SELECT SUM(value) FROM transactions WHERE account = "{account}"')
+            total = self.cursor.fetchone()
+            totals[account] = total[0]
         print(totals)
     
     def addTransactionsFromCsv(self, csvfile):

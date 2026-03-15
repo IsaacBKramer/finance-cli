@@ -34,7 +34,11 @@ if __name__ == "__main__":
         elif command == '4':
             register.viewTransactions()
         elif command == '5':
-            register.viewAnnualTotal()
+            command = input("(1)by year (2)by account: ")
+            if command == '1':
+                register.viewAnnualTotals()
+            elif command == '2':
+                register.viewAccountTotals()
         elif command == '6' or command == 'exit':
             shutdown(register)
         else: 
