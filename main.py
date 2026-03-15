@@ -1,5 +1,6 @@
 import sys
 from register import Register
+import plotting
 
 def startup():
     register = Register()
@@ -37,6 +38,7 @@ if __name__ == "__main__":
             command = input("(1)by year (2)by account: ")
             if command == '1':
                 register.viewAnnualTotals()
+                plotting.plotAnnualTotals(register)
             elif command == '2':
                 register.viewAccountTotals()
         elif command == '6' or command == 'exit':
