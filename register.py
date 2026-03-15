@@ -60,7 +60,8 @@ class Register:
         self.connection.commit()
 
     def viewTransactions(self):
-        print(pd.read_sql_query("SELECT * FROM transactions", self.connection))
+        df = pd.read_sql_query("SELECT * FROM transactions", self.connection)
+        print(df.to_markdown(index=False))
 
     def viewAnnualTotals(self):
         totals = {}
