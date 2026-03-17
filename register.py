@@ -19,29 +19,18 @@ class Register:
         )
         self.cursor.execute(createTable)
 
-    def addTransaction(self):
-        date = input("Date YYYYMMDD: ")
-        year = int(date[0:4])
-        month = int(date[4:6])
-        day = int(date[6:])
-        value = float(input("Value: "))
-        account = str(input("Account Name: "))
-        category = str(input("Category: "))
-        tag = str(input("Tag: "))
-
+    def addTransaction(self, year:int, month:int, day:int, value:float, account:str, category:str, tag:str):
         sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
         values = (year, month, day, value, account, category, tag)
         self.cursor.execute(sql, values)
         self.connection.commit()
     
-    def deleteTransaction(self):
-        id = int(input("id: "))
+    def deleteTransaction(self, id:int):
         sql = f'DELETE FROM transactions WHERE id={id}'
         self.cursor.execute(sql)
         self.connection.commit()
 
-    def modifyTransaction(self):
-        id = int(input("id: "))
+    def modifyTransaction(self, id:int):
         command = int(input("(1)date (2)value (3)account, (4)category, (5)tag: "))
         if command == 1:
             date = int(input("Date YYYYMMDD: "))
