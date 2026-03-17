@@ -41,9 +41,11 @@ if __name__ == "__main__":
             else: 
                 continue
         elif command == '2':
-            register.deleteTransaction()
+            id = int(input("id: "))
+            register.deleteTransaction(id)
         elif command == '3':
-            register.modifyTransaction()
+            id = int(input("id: "))
+            register.modifyTransaction(id)
         elif command == '4':
             register.viewTransactions()
         elif command == '5':

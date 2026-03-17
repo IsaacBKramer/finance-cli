@@ -25,14 +25,12 @@ class Register:
         self.cursor.execute(sql, values)
         self.connection.commit()
     
-    def deleteTransaction(self):
-        id = int(input("id: "))
+    def deleteTransaction(self, id:int):
         sql = f'DELETE FROM transactions WHERE id={id}'
         self.cursor.execute(sql)
         self.connection.commit()
 
-    def modifyTransaction(self):
-        id = int(input("id: "))
+    def modifyTransaction(self, id:int):
         command = int(input("(1)date (2)value (3)account, (4)category, (5)tag: "))
         if command == 1:
             date = int(input("Date YYYYMMDD: "))
