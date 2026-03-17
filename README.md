@@ -18,5 +18,7 @@ Run the program with `python3 main.py`
 
 Transactions can be bulk imported from csv. The csv currently expects the following format:
 
-| year (4 digit int) | month (2 digit int) | day (2 digit int) | value (2 decimal float) | account (string) |
+**`year YYYY`,`month MM`,`day DD`,`value XX.YY`,`account STRING`,`category STRING`,`TAG STRING`**
+
+`year`, `month`, `day`, and `value` are required fields.
 
