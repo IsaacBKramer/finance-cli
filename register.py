@@ -2,19 +2,12 @@ import pandas as pd
 import sqlite3
 
 class Register:
-    index = 0
 
     def __init__(self):
         self.connection = sqlite3.connect('transactions.db')
         self.cursor = self.connection.cursor()
-        self.cursor.execute('CREATE TABLE IF NOT EXISTS transactions (id integer, year integer, month integer, day integer, value real, account text)')
-
-    def checkIndex(self):
-        self.cursor.execute('SELECT COUNT(*) FROM transactions')
-        length = self.cursor.fetchone()[0]
-        if length != 0:
-            self.cursor.execute("SELECT MAX(id) from transactions")
-            self.index = self.cursor.fetchone()[0] + 1
+        createTable = 'CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY NOT NULL, year INTEGER, month INTEGER, day INTEGER, value REAL, account TEXT)'
+        self.cursor.execute(createTable)
 
     def addTransaction(self):
         date = input("Date YYYYMMDD: ")
@@ -24,11 +17,10 @@ class Register:
         value = float(input("Value: "))
         account = str(input("Account Name: "))
 
-        sql = 'INSERT INTO transactions (id, year, month, day, value, account) VALUES (?,?,?,?,?,?)'
-        values = (self.index, year, month, day, value, account)
+        sql = 'INSERT INTO transactions (year, month, day, value, account) VALUES (?,?,?,?,?)'
+        values = (year, month, day, value, account)
         self.cursor.execute(sql, values)
         self.connection.commit()
-        self.index += 1
     
     def deleteTransaction(self):
         id = int(input("id: "))
@@ -93,8 +85,7 @@ class Register:
     def addTransactionsFromCsv(self, csvfile):
         df = pd.read_csv(csvfile)
         for index,row in df.iterrows():
-            sql = 'INSERT INTO transactions (id, year, month, day, value, account) VALUES (?,?,?,?,?,?)'
-            values = (self.index, row['year'], row['month'], row['day'], row['value'], row['account'])
+            sql = 'INSERT INTO transactions (year, month, day, value, account) VALUES (?,?,?,?,?)'
+            values = (row['year'], row['month'], row['day'], row['value'], row['account'])
             self.cursor.execute(sql, values)
-            self.index += 1
         self.connection.commit()

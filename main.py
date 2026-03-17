@@ -4,7 +4,6 @@ import plotting
 
 def startup():
     register = Register()
-    register.checkIndex()
     print('\n########## WELCOME TO FINANCE-CLI ##########\n')
     print('Follow the prompts or type "exit" at any time to terminate the program.\n')
     return register
