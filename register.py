@@ -46,39 +46,39 @@ class Register:
             self.cursor.execute(sql, values)
             self.connection.commit()
         except sqlite3.IntegrityError as e:
-            print(f"\nINVALID PARAMETER, TRANSACTION NOT ADDED")
+            print(f"\nINVALID ACCOUNT NAME, TRANSACTION NOT ADDED")
   
     def deleteTransaction(self, id:int):
         sql = f'DELETE FROM transactions WHERE id={id}'
         self.cursor.execute(sql)
         self.connection.commit()
+    
+    def modifyTransactionDate(self, id:int, date):
+        sql = f'UPDATE transactions SET year=? SET month=? SET day=? WHERE id=?'
+        self.cursor.execute(sql,(date[0],date[1],date[2],id))
+        self.connection.commit()
+    
+    def modifyTransactionValue(self, id:int, value:float):
+        sql = f'UPDATE transactions SET value=? WHERE id=?'
+        self.cursor.execute(sql,(value,id))
+        self.connection.commit()
 
-    def modifyTransaction(self, id:int):
-        command = input("date value account category tag: ").lower()
-        if command == 'date':
-            date = int(input("Date YYYYMMDD: "))
-            year = int(date[0:4])
-            month = int(date[4:6])
-            day = int(date[6:])
-            set = f'SET year = {year}'
-            set = f'SET month = {month}'
-            set = f'SET day = {day}'
-        elif command == 'value':
-            value = float(input("Value: "))
-            set = f'SET value = {value}'
-        elif command == 'account':
-            account = str(input("Account Name: "))
-            set = f'SET account = "{account}"'
-        elif command == 'category':
-            category = str(input("Category: "))
-            set = f'SET category = "{category}"'
-        elif command == 'tag':
-            tag = str(input("Tag: "))
-            set = f'SET tag = "{tag}"'
-        else:
-            return
-        sql = f'UPDATE transactions {set} WHERE id = {id}'
-        self.cursor.execute(sql)
+    def modifyTransactionAccount(self, id:int, account:str):
+        sql = f'UPDATE transactions SET account=? WHERE id=?'
+        try:
+            self.cursor.execute(sql,(account,id))
+            self.connection.commit()
+        except sqlite3.IntegrityError as e:
+            print(f"\n INVALID ACCOUNT NAME, TRANSACTION NOT MODIFIED, {e}")
+
+    def modifyTransactionCategory(self, id:int, category:str):
+        sql = f'UPDATE transactions SET category=? WHERE id=?'
+        self.cursor.execute(sql,(category,id))
+        self.connection.commit()
+
+    def modifyTransactionTag(self, id:int, tag:str):
+        sql = f'UPDATE transactions SET tag=? WHERE id=?'
+        self.cursor.execute(sql,(tag,id))
         self.connection.commit()
 
     def viewTransactions(self):

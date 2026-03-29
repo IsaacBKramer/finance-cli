@@ -74,7 +74,26 @@ if __name__ == "__main__":
                     register.deleteTransaction(id)
                 elif command == 'modify':
                     id = int(input("id: "))
-                    register.modifyTransaction(id)
+                    command = input("date value account category tag exit: ").lower()
+                    if command == 'date':
+                        register.modifyTransactionDate(id, readDate())
+                    elif command == 'value':
+                        value = float(input("Value: "))
+                        register.modifyTransactionValue(id, value)
+                    elif command == 'account':
+                        account = str(input("Account Name: "))
+                        register.modifyTransactionAccount(id, account)
+                    elif command == 'category':
+                        category = str(input("Category: "))
+                        register.modifyTransactionCategory(id, category)
+                    elif command == 'tag':
+                        tag = str(input("Tag: "))
+                        register.modifyTransactionTag(id, tag)
+                    elif command == 'exit':
+                        break
+                    else:
+                        print("invalid input")
+                        continue
                 elif command == 'view':
                     register.viewTransactions()
                 elif command == 'exit':
