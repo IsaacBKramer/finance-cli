@@ -6,7 +6,12 @@ class Register:
     def __init__(self):
         self.connection = sqlite3.connect('transactions.db')
         self.cursor = self.connection.cursor()
-        createTable = (
+
+        createAccounts = (
+            'CREATE TABLE IF NOT EXISTS accounts ('
+            'account TEXT)'
+        )
+        createTransactions = (
             'CREATE TABLE IF NOT EXISTS transactions ('
             'id INTEGER PRIMARY KEY NOT NULL,'
             'year INTEGER NOT NULL,'
@@ -17,7 +22,19 @@ class Register:
             'category TEXT,'
             'tag TEXT)'
         )
-        self.cursor.execute(createTable)
+
+        self.cursor.execute(createAccounts)
+        self.cursor.execute(createTransactions)
+
+    def addAccount(self, account:str):
+        sql = 'INSERT INTO accounts (account) VALUES (?)'
+        values = (account,)
+        self.cursor.execute(sql, values)
+        self.connection.commit()
+    
+    def viewAccounts(self):
+        df = pd.read_sql_query("SELECT * FROM accounts", self.connection)
+        print(df.to_markdown(index=False))
 
     def addTransaction(self, year:int, month:int, day:int, value:float, account:str, category:str, tag:str):
         sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
