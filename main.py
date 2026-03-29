@@ -18,12 +18,12 @@ def shutdown(register:Register):
 if __name__ == "__main__":
     register = startup()
     while True:
-        command = input("transactions accounts totals exit: ")
+        command = input("transactions accounts totals exit: ").lower()
         if command == 'transactions':
             while True:
-                command = input("add delete modify view exit: ")
+                command = input("add delete modify view exit: ").lower()
                 if command =='add':
-                    command = input("manual csv: ")
+                    command = input("manual csv: ").lower()
                     if command == 'manual':
                         date = input("Date YYYYMMDD: ")
                         year = int(date[0:4])
@@ -58,7 +58,7 @@ if __name__ == "__main__":
                     continue
         elif command == 'accounts':
             while True:
-                command = input("add view exit: ")
+                command = input("add view exit: ").lower()
                 if command == 'add':
                     accountName = input("account name: ")
                     register.addAccount(accountName)
@@ -70,7 +70,7 @@ if __name__ == "__main__":
                     print('invalid input')
                     continue
         elif command == 'totals':
-            command = input("year account: ")
+            command = input("year account: ").lower()
             if command == 'year':
                 register.viewAnnualTotals()
                 plotting.plotAnnualTotals(register)
@@ -80,5 +80,3 @@ if __name__ == "__main__":
             shutdown(register)
         else: 
             continue
-        
-

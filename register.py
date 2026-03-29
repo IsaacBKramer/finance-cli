@@ -54,8 +54,8 @@ class Register:
         self.connection.commit()
 
     def modifyTransaction(self, id:int):
-        command = int(input("(1)date (2)value (3)account, (4)category, (5)tag: "))
-        if command == 1:
+        command = input("date value account category tag: ").lower()
+        if command == 'date':
             date = int(input("Date YYYYMMDD: "))
             year = int(date[0:4])
             month = int(date[4:6])
@@ -63,16 +63,16 @@ class Register:
             set = f'SET year = {year}'
             set = f'SET month = {month}'
             set = f'SET day = {day}'
-        elif command == 2:
+        elif command == 'value':
             value = float(input("Value: "))
             set = f'SET value = {value}'
-        elif command == 3:
+        elif command == 'account':
             account = str(input("Account Name: "))
             set = f'SET account = "{account}"'
-        elif command == 4:
+        elif command == 'category':
             category = str(input("Category: "))
             set = f'SET category = "{category}"'
-        elif command == 5:
+        elif command == 'tag':
             tag = str(input("Tag: "))
             set = f'SET tag = "{tag}"'
         else:
