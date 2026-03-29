@@ -6,7 +6,12 @@ class Register:
     def __init__(self):
         self.connection = sqlite3.connect('transactions.db')
         self.cursor = self.connection.cursor()
-        createTable = (
+
+        createAccounts = (
+            'CREATE TABLE IF NOT EXISTS accounts ('
+            'name TEXT UNIQUE)'
+        )
+        createTransactions = (
             'CREATE TABLE IF NOT EXISTS transactions ('
             'id INTEGER PRIMARY KEY NOT NULL,'
             'year INTEGER NOT NULL,'
@@ -15,47 +20,65 @@ class Register:
             'value REAL NOT NULL,'
             'account TEXT,'
             'category TEXT,'
-            'tag TEXT)'
+            'tag TEXT,'
+            'FOREIGN KEY (account) REFERENCES accounts(name)'
+            ')'
         )
-        self.cursor.execute(createTable)
 
-    def addTransaction(self, year:int, month:int, day:int, value:float, account:str, category:str, tag:str):
-        sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
-        values = (year, month, day, value, account, category, tag)
+        self.cursor.execute(createAccounts)
+        self.cursor.execute(createTransactions)
+        self.cursor.execute("PRAGMA foreign_keys = ON");
+
+    def addAccount(self, account:str):
+        sql = 'INSERT INTO accounts (name) VALUES (?)'
+        values = (account.strip(),)
         self.cursor.execute(sql, values)
         self.connection.commit()
     
+    def viewAccounts(self):
+        df = pd.read_sql_query("SELECT * FROM accounts", self.connection)
+        print(df.to_markdown(index=False))
+
+    def addTransaction(self, year:int, month:int, day:int, value:float, account:str, category:str, tag:str):
+        sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
+        values = (year, month, day, value, account.strip(), category, tag)
+        try:
+            self.cursor.execute(sql, values)
+            self.connection.commit()
+        except sqlite3.IntegrityError as e:
+            print(f"\nINVALID ACCOUNT NAME, TRANSACTION NOT ADDED")
+  
     def deleteTransaction(self, id:int):
         sql = f'DELETE FROM transactions WHERE id={id}'
         self.cursor.execute(sql)
         self.connection.commit()
+    
+    def modifyTransactionDate(self, id:int, date):
+        sql = f'UPDATE transactions SET year=? SET month=? SET day=? WHERE id=?'
+        self.cursor.execute(sql,(date[0],date[1],date[2],id))
+        self.connection.commit()
+    
+    def modifyTransactionValue(self, id:int, value:float):
+        sql = f'UPDATE transactions SET value=? WHERE id=?'
+        self.cursor.execute(sql,(value,id))
+        self.connection.commit()
 
-    def modifyTransaction(self, id:int):
-        command = int(input("(1)date (2)value (3)account, (4)category, (5)tag: "))
-        if command == 1:
-            date = int(input("Date YYYYMMDD: "))
-            year = int(date[0:4])
-            month = int(date[4:6])
-            day = int(date[6:])
-            set = f'SET year = {year}'
-            set = f'SET month = {month}'
-            set = f'SET day = {day}'
-        elif command == 2:
-            value = float(input("Value: "))
-            set = f'SET value = {value}'
-        elif command == 3:
-            account = str(input("Account Name: "))
-            set = f'SET account = "{account}"'
-        elif command == 4:
-            category = str(input("Category: "))
-            set = f'SET category = "{category}"'
-        elif command == 5:
-            tag = str(input("Tag: "))
-            set = f'SET tag = "{tag}"'
-        else:
-            return
-        sql = f'UPDATE transactions {set} WHERE id = {id}'
-        self.cursor.execute(sql)
+    def modifyTransactionAccount(self, id:int, account:str):
+        sql = f'UPDATE transactions SET account=? WHERE id=?'
+        try:
+            self.cursor.execute(sql,(account.strip(),id))
+            self.connection.commit()
+        except sqlite3.IntegrityError as e:
+            print(f"\n INVALID ACCOUNT NAME, TRANSACTION NOT MODIFIED, {e}")
+
+    def modifyTransactionCategory(self, id:int, category:str):
+        sql = f'UPDATE transactions SET category=? WHERE id=?'
+        self.cursor.execute(sql,(category,id))
+        self.connection.commit()
+
+    def modifyTransactionTag(self, id:int, tag:str):
+        sql = f'UPDATE transactions SET tag=? WHERE id=?'
+        self.cursor.execute(sql,(tag,id))
         self.connection.commit()
 
     def viewTransactions(self):
