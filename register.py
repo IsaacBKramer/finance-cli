@@ -31,7 +31,7 @@ class Register:
 
     def addAccount(self, account:str):
         sql = 'INSERT INTO accounts (name) VALUES (?)'
-        values = (account,)
+        values = (account.strip(),)
         self.cursor.execute(sql, values)
         self.connection.commit()
     
@@ -41,7 +41,7 @@ class Register:
 
     def addTransaction(self, year:int, month:int, day:int, value:float, account:str, category:str, tag:str):
         sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
-        values = (year, month, day, value, account, category, tag)
+        values = (year, month, day, value, account.strip(), category, tag)
         try:
             self.cursor.execute(sql, values)
             self.connection.commit()
@@ -66,7 +66,7 @@ class Register:
     def modifyTransactionAccount(self, id:int, account:str):
         sql = f'UPDATE transactions SET account=? WHERE id=?'
         try:
-            self.cursor.execute(sql,(account,id))
+            self.cursor.execute(sql,(account.strip(),id))
             self.connection.commit()
         except sqlite3.IntegrityError as e:
             print(f"\n INVALID ACCOUNT NAME, TRANSACTION NOT MODIFIED, {e}")
