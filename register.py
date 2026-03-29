@@ -9,7 +9,7 @@ class Register:
 
         createAccounts = (
             'CREATE TABLE IF NOT EXISTS accounts ('
-            'account TEXT)'
+            'name TEXT UNIQUE)'
         )
         createTransactions = (
             'CREATE TABLE IF NOT EXISTS transactions ('
@@ -20,14 +20,17 @@ class Register:
             'value REAL NOT NULL,'
             'account TEXT,'
             'category TEXT,'
-            'tag TEXT)'
+            'tag TEXT,'
+            'FOREIGN KEY (account) REFERENCES accounts(name)'
+            ')'
         )
 
         self.cursor.execute(createAccounts)
         self.cursor.execute(createTransactions)
+        self.cursor.execute("PRAGMA foreign_keys = ON");
 
     def addAccount(self, account:str):
-        sql = 'INSERT INTO accounts (account) VALUES (?)'
+        sql = 'INSERT INTO accounts (name) VALUES (?)'
         values = (account,)
         self.cursor.execute(sql, values)
         self.connection.commit()
@@ -39,9 +42,12 @@ class Register:
     def addTransaction(self, year:int, month:int, day:int, value:float, account:str, category:str, tag:str):
         sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
         values = (year, month, day, value, account, category, tag)
-        self.cursor.execute(sql, values)
-        self.connection.commit()
-    
+        try:
+            self.cursor.execute(sql, values)
+            self.connection.commit()
+        except sqlite3.IntegrityError as e:
+            print(f"\nINVALID PARAMETER, TRANSACTION NOT ADDED")
+  
     def deleteTransaction(self, id:int):
         sql = f'DELETE FROM transactions WHERE id={id}'
         self.cursor.execute(sql)
