@@ -82,7 +82,7 @@ class Register:
         self.connection.commit()
 
     def viewTransactions(self):
-        df = pd.read_sql_query("SELECT * FROM transactions", self.connection)
+        df = pd.read_sql_query("SELECT * FROM transactions ORDER BY year ASC, month ASC, day ASC", self.connection)
         print(df.to_markdown(index=False))
 
     def getAnnualTotals(self):
