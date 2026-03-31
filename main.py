@@ -115,10 +115,12 @@ if __name__ == "__main__":
                     print('invalid input')
                     continue
         elif command == 'totals':
-            command = input("year account: ").lower()
+            command = input("year month account: ").lower()
             if command == 'year':
                 register.viewAnnualTotals()
-                plotting.plotAnnualTotals(register)
+                # plotting.plotAnnualTotals(register)
+            elif command == 'month':
+                register.viewMonthlyTotals()
             elif command == 'account':
                 register.viewAccountTotals()
         elif command == 'exit':

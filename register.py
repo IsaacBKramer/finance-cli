@@ -97,8 +97,25 @@ class Register:
         annualTotals = {'year' : years, 'total' : totals}
         return pd.DataFrame(annualTotals)
     
+    def getMonthlyTotals(self):
+        self.cursor.execute('SELECT DISTINCT year, month FROM transactions ORDER BY year ASC, month ASC')
+        data = self.cursor.fetchall()
+        years = [row[0] for row in data]
+        months = [row[1] for row in data]
+        totals = []
+        for month in data:
+            self.cursor.execute(f'SELECT SUM(value) FROM transactions WHERE year <= {month[0]} AND month <={month[1]}')
+            total = self.cursor.fetchone()
+            totals.append(total[0])
+        annualTotals = {'year' : years, 'month' : months, 'total' : totals}
+        return pd.DataFrame(annualTotals)
+    
     def viewAnnualTotals(self):
         df = self.getAnnualTotals()
+        print(df.to_markdown(index=False))
+    
+    def viewMonthlyTotals(self):
+        df = self.getMonthlyTotals()
         print(df.to_markdown(index=False))
 
     def viewAccountTotals(self):
