@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 from register import Register
+import csvreader
 import plotting
 
 def startup():
@@ -61,12 +62,21 @@ if __name__ == "__main__":
                         tag = str(input("Tag: "))
                         register.addTransaction(date[0],date[1],date[2],value,account,category,tag)
                     elif command == 'csv': 
-                        command = input("filename: ")
-                        file = Path(command)
+                        type = input("default quicken: ").lower()
+                        account = input("account name: ")
+                        file = input("filename: ")
+                        file = Path(file)
                         if file.is_file():
-                            register.addTransactionsFromCsv(command)
+                            if type == 'default':
+                                df = csvreader.readDefaultCsv(file, account)
+                                register.addTransactionsFromDf(df)
+                            elif type == 'quicken':
+                                df = csvreader.readQuickenCsv(file, account)
+                                register.addTransactionsFromDf(df)
+                            else:
+                                continue
                         else:
-                            print(f'file {command} does not exist')
+                            print(f'file {file} does not exist')
                     else: 
                         continue
                 elif command == 'delete':

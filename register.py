@@ -102,9 +102,11 @@ class Register:
         data = self.cursor.fetchall()
         years = [row[0] for row in data]
         months = [row[1] for row in data]
+        print(years)
+        print(months)
         totals = []
-        for month in data:
-            self.cursor.execute(f'SELECT SUM(value) FROM transactions WHERE year <= {month[0]} AND month <={month[1]}')
+        for i in range(len(years)):
+            self.cursor.execute(f'SELECT SUM(value) FROM transactions WHERE year < {years[i]} OR (year = {years[i]} AND month <={months[i]})')
             total = self.cursor.fetchone()
             totals.append(total[0])
         annualTotals = {'year' : years, 'month' : months, 'total' : totals}
@@ -129,8 +131,7 @@ class Register:
             totals[account] = total[0]
         print(totals)
     
-    def addTransactionsFromCsv(self, csvfile):
-        df = pd.read_csv(csvfile)
+    def addTransactionsFromDf(self, df):
         for index,row in df.iterrows():
             sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
             values = (row['year'], row['month'], row['day'], row['value'], row['account'], row['category'], row['tag'])
