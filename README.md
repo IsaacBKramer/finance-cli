@@ -16,9 +16,11 @@ Run the program with `python3 main.py`
 
 # Importing Transactions from CSV
 
-Transactions can be bulk imported from csv. The csv currently expects the following format:
+Transactions can be bulk imported from csv. The currently expected formats for csv fiels are either a custom default, or the Quicken export format. The custom default adheres to the following format:
 
-**`year YYYY`,`month MM`,`day DD`,`value XX.YY`,`account STRING`,`category STRING`,`TAG STRING`**
+**`year YYYY`,`month MM`,`day DD`,`value XX.YY`,`account STRING`,`category STRING`,`tag STRING`**
 
 `year`, `month`, `day`, and `value` are required fields.
+
+To export transactions in Quicken for Mac select the transactions in the register and click `File` -> `Export` -> `Register Transactions to CSV File...`.
 

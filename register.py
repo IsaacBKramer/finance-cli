@@ -82,7 +82,7 @@ class Register:
         self.connection.commit()
 
     def viewTransactions(self):
-        df = pd.read_sql_query("SELECT * FROM transactions", self.connection)
+        df = pd.read_sql_query("SELECT * FROM transactions ORDER BY year ASC, month ASC, day ASC", self.connection)
         print(df.to_markdown(index=False))
 
     def getAnnualTotals(self):
@@ -97,8 +97,27 @@ class Register:
         annualTotals = {'year' : years, 'total' : totals}
         return pd.DataFrame(annualTotals)
     
+    def getMonthlyTotals(self):
+        self.cursor.execute('SELECT DISTINCT year, month FROM transactions ORDER BY year ASC, month ASC')
+        data = self.cursor.fetchall()
+        years = [row[0] for row in data]
+        months = [row[1] for row in data]
+        print(years)
+        print(months)
+        totals = []
+        for i in range(len(years)):
+            self.cursor.execute(f'SELECT SUM(value) FROM transactions WHERE year < {years[i]} OR (year = {years[i]} AND month <={months[i]})')
+            total = self.cursor.fetchone()
+            totals.append(total[0])
+        annualTotals = {'year' : years, 'month' : months, 'total' : totals}
+        return pd.DataFrame(annualTotals)
+    
     def viewAnnualTotals(self):
         df = self.getAnnualTotals()
+        print(df.to_markdown(index=False))
+    
+    def viewMonthlyTotals(self):
+        df = self.getMonthlyTotals()
         print(df.to_markdown(index=False))
 
     def viewAccountTotals(self):
@@ -112,8 +131,7 @@ class Register:
             totals[account] = total[0]
         print(totals)
     
-    def addTransactionsFromCsv(self, csvfile):
-        df = pd.read_csv(csvfile)
+    def addTransactionsFromDf(self, df):
         for index,row in df.iterrows():
             sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
             values = (row['year'], row['month'], row['day'], row['value'], row['account'], row['category'], row['tag'])
