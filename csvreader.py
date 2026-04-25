@@ -1,7 +1,7 @@
 import pandas as pd
 
 def readDefaultCsv(csvfile):
-    df = pd.read_csv(csvfile)
+    return pd.read_csv(csvfile)
 
 def readQuickenCsv(csvfile:str, account:str):
     df = pd.read_csv(csvfile)

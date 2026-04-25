@@ -1,18 +1,21 @@
 import sys
-from pathlib import Path
-from register import Register
+import register
+import investments
 import csvreader
-import plotting
+import database
+from pathlib import Path
 
 def startup():
-    register = Register()
+    db = database.create('database.db')
+    cur = database.cursor(db)
+    register.createTransactionsTable(cur)
+    investments.createInvestmentsTable(cur)
     print('\n########## WELCOME TO FINANCE-CLI ##########\n')
     print('Follow the prompts or type "exit" at any time to terminate the program.\n')
-    return register
+    return db, cur
 
-def shutdown(register:Register):
-    register.connection.commit()
-    register.connection.close()
+def shutdown(db):
+    database.shutdown(db)
     print('goodbye')
     sys.exit(0)
 
@@ -46,7 +49,7 @@ def readDate():
         return (year,month,day)
 
 if __name__ == "__main__":
-    register = startup()
+    db, cur = startup()
     while True:
         command = input("transactions accounts totals exit: ").lower()
         if command == 'transactions':
@@ -60,7 +63,7 @@ if __name__ == "__main__":
                         account = str(input("Account Name: "))
                         category = str(input("Category: "))
                         tag = str(input("Tag: "))
-                        register.addTransaction(date[0],date[1],date[2],value,account,category,tag)
+                        register.addTransaction(cur, date[0],date[1],date[2],value,account,category,tag)
                     elif command == 'csv': 
                         type = input("default quicken: ").lower()
                         account = input("account name: ")
@@ -68,11 +71,11 @@ if __name__ == "__main__":
                         file = Path(file)
                         if file.is_file():
                             if type == 'default':
-                                df = csvreader.readDefaultCsv(file, account)
-                                register.addTransactionsFromDf(df)
+                                df = csvreader.readDefaultCsv(file)
+                                register.addTransactionsFromDf(cur, df)
                             elif type == 'quicken':
                                 df = csvreader.readQuickenCsv(file, account)
-                                register.addTransactionsFromDf(df)
+                                register.addTransactionsFromDf(cur, df)
                             else:
                                 continue
                         else:
@@ -81,31 +84,31 @@ if __name__ == "__main__":
                         continue
                 elif command == 'delete':
                     id = int(input("id: "))
-                    register.deleteTransaction(id)
+                    register.deleteTransaction(cur, id)
                 elif command == 'modify':
                     id = int(input("id: "))
                     command = input("date value account category tag exit: ").lower()
                     if command == 'date':
-                        register.modifyTransactionDate(id, readDate())
+                        register.modifyTransactionDate(cur, id, readDate())
                     elif command == 'value':
                         value = float(input("Value: "))
-                        register.modifyTransactionValue(id, value)
+                        register.modifyTransactionValue(cur, id, value)
                     elif command == 'account':
                         account = str(input("Account Name: "))
-                        register.modifyTransactionAccount(id, account)
+                        register.modifyTransactionAccount(cur, id, account)
                     elif command == 'category':
                         category = str(input("Category: "))
-                        register.modifyTransactionCategory(id, category)
+                        register.modifyTransactionCategory(cur, id, category)
                     elif command == 'tag':
                         tag = str(input("Tag: "))
-                        register.modifyTransactionTag(id, tag)
+                        register.modifyTransactionTag(cur, id, tag)
                     elif command == 'exit':
                         break
                     else:
                         print("invalid input")
                         continue
                 elif command == 'view':
-                    register.viewTransactions()
+                    register.viewTransactions(db)
                 elif command == 'exit':
                     break
                 else:
@@ -116,9 +119,9 @@ if __name__ == "__main__":
                 command = input("add view exit: ").lower()
                 if command == 'add':
                     accountName = input("account name: ")
-                    register.addAccount(accountName)
+                    register.addAccount(cur, accountName)
                 elif command == 'view':
-                    register.viewAccounts()
+                    register.viewAccounts(db)
                 elif command == 'exit':
                     break
                 else:
@@ -127,13 +130,13 @@ if __name__ == "__main__":
         elif command == 'totals':
             command = input("year month account: ").lower()
             if command == 'year':
-                register.viewAnnualTotals()
+                register.viewAnnualTotals(cur)
                 # plotting.plotAnnualTotals(register)
             elif command == 'month':
-                register.viewMonthlyTotals()
+                register.viewMonthlyTotals(cur)
             elif command == 'account':
-                register.viewAccountTotals()
+                register.viewAccountTotals(cur)
         elif command == 'exit':
-            shutdown(register)
+            shutdown(db)
         else: 
             continue
