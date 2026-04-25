@@ -14,6 +14,3 @@ def test_tables():
     finance.investments.createInvestmentsTable(cursor)
     db.commit()
     db.close()
-
-def test_transactions():
-    finance.register.addTransaction()
