@@ -24,12 +24,14 @@ def createTransactionsTable(db:sqlite3.Cursor):
 
     db.execute(createAccounts)
     db.execute(createTransactions)
-    db.execute("PRAGMA foreign_keys = ON");
+    db.execute("PRAGMA foreign_keys = ON")
+    return True
 
 def addAccount(db:sqlite3.Cursor, account:str):
     sql = 'INSERT INTO accounts (name) VALUES (?)'
     values = (account.strip(),)
     db.execute(sql, values)
+    return True
 
 def viewAccounts(db:sqlite3.Connection):
     df = pd.read_sql_query("SELECT * FROM accounts", db)
@@ -42,18 +44,23 @@ def addTransaction(db:sqlite3.Cursor, year:int, month:int, day:int, value:float,
         db.execute(sql, values)
     except sqlite3.IntegrityError as e:
         print(f"\nINVALID ACCOUNT NAME, TRANSACTION NOT ADDED")
+        return False
+    return True
 
 def deleteTransaction(db:sqlite3.Cursor, id:int):
     sql = f'DELETE FROM transactions WHERE id={id}'
     db.execute(sql)
+    return True
 
 def modifyTransactionDate(db:sqlite3.Cursor, id:int, date):
     sql = f'UPDATE transactions SET year=? SET month=? SET day=? WHERE id=?'
     db.execute(sql,(date[0],date[1],date[2],id))
+    return True
 
 def modifyTransactionValue(db:sqlite3.Cursor, id:int, value:float):
     sql = f'UPDATE transactions SET value=? WHERE id=?'
     db.execute(sql,(value,id))
+    return True
 
 def modifyTransactionAccount(db:sqlite3.Cursor, id:int, account:str):
     sql = f'UPDATE transactions SET account=? WHERE id=?'
@@ -61,14 +68,18 @@ def modifyTransactionAccount(db:sqlite3.Cursor, id:int, account:str):
         db.execute(sql,(account.strip(),id))
     except sqlite3.IntegrityError as e:
         print(f"\n INVALID ACCOUNT NAME, TRANSACTION NOT MODIFIED, {e}")
+        return False
+    return True
 
 def modifyTransactionCategory(db:sqlite3.Cursor, id:int, category:str):
     sql = f'UPDATE transactions SET category=? WHERE id=?'
     db.execute(sql,(category,id))
+    return True
 
 def modifyTransactionTag(db:sqlite3.Cursor, id:int, tag:str):
     sql = f'UPDATE transactions SET tag=? WHERE id=?'
     db.execute(sql,(tag,id))
+    return True
 
 def viewTransactions(db:sqlite3.Connection):
     df = pd.read_sql_query("SELECT * FROM transactions ORDER BY year ASC, month ASC, day ASC", db)
