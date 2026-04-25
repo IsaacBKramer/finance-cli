@@ -1,0 +1,7 @@
+[project]
+name = "finance"
+version = "0.1"
+description = "finance from the command line"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
