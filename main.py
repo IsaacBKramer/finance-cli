@@ -51,7 +51,7 @@ def readDate():
 if __name__ == "__main__":
     db, cur = startup()
     while True:
-        command = input("transactions accounts totals exit: ").lower()
+        command = input("transactions investments accounts totals exit: ").lower()
         if command == 'transactions':
             while True:
                 command = input("add delete modify view exit: ").lower()
@@ -109,6 +109,22 @@ if __name__ == "__main__":
                         continue
                 elif command == 'view':
                     register.viewTransactions(db)
+                elif command == 'exit':
+                    break
+                else:
+                    print('invalid input')
+                    continue
+        elif command == 'investments':
+            while True:
+                command = input("add view exit: ").lower()
+                if command == 'add':
+                    date = readDate()
+                    ticker = input("Ticker: ").upper()
+                    shares = float(input("Shares: "))
+                    cost = float(input("Cost: "))
+                    investments.addInvestment(cur,date[0],date[1],date[2],ticker,cost,shares)
+                elif command == 'view':
+                    investments.currentValue(cur)
                 elif command == 'exit':
                     break
                 else:
