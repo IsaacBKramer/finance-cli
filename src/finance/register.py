@@ -120,7 +120,7 @@ def viewMonthlyTotals(db:sqlite3.Cursor):
     df = getMonthlyTotals(db)
     print(df.to_markdown(index=False))
 
-def viewAccountTotals(db:sqlite3.Cursor):
+def getAccountTotals(db:sqlite3.Cursor):
     totals = {}
     db.execute('SELECT DISTINCT account FROM transactions')
     accounts = db.fetchall()
@@ -129,7 +129,7 @@ def viewAccountTotals(db:sqlite3.Cursor):
         db.execute(f'SELECT SUM(value) FROM transactions WHERE account = "{account}"')
         total = db.fetchone()
         totals[account] = total[0]
-    print(totals)
+    return totals
 
 def addTransactionsFromDf(db:sqlite3.Cursor, df):
     for index,row in df.iterrows():

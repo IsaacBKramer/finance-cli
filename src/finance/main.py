@@ -151,7 +151,7 @@ if __name__ == "__main__":
             elif command == 'month':
                 register.viewMonthlyTotals(cur)
             elif command == 'account':
-                register.viewAccountTotals(cur)
+                print(register.getAccountTotals(cur))
         elif command == 'exit':
             shutdown(db)
         else: 
