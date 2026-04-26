@@ -1,4 +1,5 @@
 import sys
+import accounts
 import register
 import investments
 import csvreader
@@ -8,6 +9,7 @@ from pathlib import Path
 def startup():
     db = database.create('database.db')
     cur = database.cursor(db)
+    accounts.createAccountsTable(cur)
     register.createTransactionsTable(cur)
     investments.createInvestmentsTable(cur)
     print('\n########## WELCOME TO FINANCE-CLI ##########\n')
@@ -145,9 +147,9 @@ if __name__ == "__main__":
                 command = input("add view exit: ").lower()
                 if command == 'add':
                     accountName = input("account name: ")
-                    register.addAccount(cur, accountName)
+                    accounts.addAccount(cur, accountName)
                 elif command == 'view':
-                    register.viewAccounts(db)
+                    accounts.viewAccounts(db)
                 elif command == 'exit':
                     break
                 else:

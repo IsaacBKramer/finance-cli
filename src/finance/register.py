@@ -4,10 +4,6 @@ import sqlite3
 
 def createTransactionsTable(db:sqlite3.Cursor):
     
-    createAccounts = (
-        'CREATE TABLE IF NOT EXISTS accounts ('
-        'name TEXT UNIQUE)'
-    )
     createTransactions = (
         'CREATE TABLE IF NOT EXISTS transactions ('
         'id INTEGER PRIMARY KEY NOT NULL,'
@@ -22,20 +18,8 @@ def createTransactionsTable(db:sqlite3.Cursor):
         ')'
     )
 
-    db.execute(createAccounts)
     db.execute(createTransactions)
-    db.execute("PRAGMA foreign_keys = ON")
     return True
-
-def addAccount(db:sqlite3.Cursor, account:str):
-    sql = 'INSERT INTO accounts (name) VALUES (?)'
-    values = (account.strip(),)
-    db.execute(sql, values)
-    return True
-
-def viewAccounts(db:sqlite3.Connection):
-    df = pd.read_sql_query("SELECT * FROM accounts", db)
-    print(df.to_markdown(index=False))
 
 def addTransaction(db:sqlite3.Cursor, year:int, month:int, day:int, value:float, account:str, category:str, tag:str):
     sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'

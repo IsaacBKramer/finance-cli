@@ -1,5 +1,6 @@
 import pytest
 import finance.database as dat
+import finance.accounts as acc
 import finance.register as reg
 import finance.investments as inv
 
@@ -12,11 +13,12 @@ def database():
     db.close()
 
 def test_tables(database):
+    assert acc.createAccountsTable(database) == True
     assert reg.createTransactionsTable(database) == True
     assert inv.createInvestmentsTable(database) == True
 
 def test_accounts(database):
-    assert reg.addAccount(database, 'SAVINGS') == True
+    assert acc.addAccount(database, 'SAVINGS') == True
 
 def test_valid_transaction(database):
     assert reg.addTransaction(database, 2026, 4, 25, 100.00, 'SAVINGS', 'INCOME', 'NONE') == True
