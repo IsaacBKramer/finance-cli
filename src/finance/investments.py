@@ -31,6 +31,7 @@ def getLots(db):
     if lots.empty: return None
     prices = downloadPrice(db)
     lots['Value'] = lots.apply(lambda row: row['Shares'] * prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
+    lots['PercentChange'] = (lots['Value']/lots['Basis']-1)*100
     return lots
 
 def getInvestments(db):
