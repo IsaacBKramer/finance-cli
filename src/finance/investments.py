@@ -24,10 +24,19 @@ def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, sha
     db.execute(sql, values)
     return True
 
+def getLots(db):
+    sql = 'SELECT ticker, shares, cost FROM investments'
+    db.execute(sql)
+    lots = pd.DataFrame(db.fetchall(), columns=['Ticker','Shares','Basis'])
+    if lots.empty: return None
+    prices = downloadPrice(db)
+    lots['Value'] = lots.apply(lambda row: row['Shares'] * prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
+    return lots
+
 def getInvestments(db):
     sql = 'SELECT ticker, SUM(shares) FROM investments GROUP BY ticker'
     db.execute(sql)
-    return pd.DataFrame(db.fetchall(), columns=['Ticker', 'Shares'])
+    return pd.DataFrame(db.fetchall(), columns=['Ticker','Shares'])
 
 def getTickers(db):
     sql = 'SELECT DISTINCT ticker FROM investments'
@@ -36,11 +45,13 @@ def getTickers(db):
 
 def downloadPrice(db):
     tickers = getTickers(db)
+    if not tickers: return None
     data = yf.download(tickers, period='1mo')
     return data['Close']
 
 def currentValue(db):
     prices = downloadPrice(db)
+    if prices is None: return None
     investments = getInvestments(db)
     investments['Price'] = investments.apply(lambda row: prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
     investments['Total'] = investments['Price'] * investments['Shares']
