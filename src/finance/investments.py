@@ -16,11 +16,13 @@ def createInvestmentsTable(db):
     )
 
     db.execute(createInvestments)
+    return True
 
 def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, shares:float):
     sql = 'INSERT INTO investments (year, month, day, ticker, cost, shares) VALUES (?,?,?,?,?,?)'
     values = (year, month, day, ticker.strip(), value, shares)
     db.execute(sql, values)
+    return True
 
 def getInvestments(db):
     sql = 'SELECT ticker, SUM(shares) FROM investments GROUP BY ticker'
