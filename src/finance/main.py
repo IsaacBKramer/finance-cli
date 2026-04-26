@@ -124,7 +124,17 @@ if __name__ == "__main__":
                     cost = float(input("Cost: "))
                     investments.addInvestment(cur,date[0],date[1],date[2],ticker,cost,shares)
                 elif command == 'view':
-                    investments.currentValue(cur)
+                    command = input("security lots exit: ").lower()
+                    if command == 'security':
+                        investments.currentValue(cur)
+                    elif command == 'lots':
+                        df = investments.getLots(cur)
+                        if df is not None: print(investments.getLots(cur))
+                    elif command == 'exit':
+                        break
+                    else:
+                        print('invalid input')
+                        continue
                 elif command == 'exit':
                     break
                 else:
