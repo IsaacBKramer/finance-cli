@@ -25,8 +25,8 @@ def createInvestmentsTable(db):
 def getEarliestDate(db):
     sql = 'SELECT year, month, day FROM investments ORDER BY year ASC, month ASC, day ASC LIMIT 1'
     db.execute(sql)
-    date = db.fetchone()
-    return f'{date[0]}-{date[1]}-{date[2]}'
+    data = db.fetchone()
+    return date(data[0],data[1],data[2])
 
 def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, shares:float, account:str):
     sql = 'INSERT INTO investments (year, month, day, ticker, cost, shares, account) VALUES (?,?,?,?,?,?,?)'
@@ -43,7 +43,7 @@ def getLots(db):
     db.execute(sql)
     lots = pd.DataFrame(db.fetchall(), columns=['Ticker','Shares','Basis'])
     if lots.empty: return None
-    prices = downloadPrice(db, getEarliestDate(db))
+    prices = downloadPrice(db)
     lots['Value'] = lots.apply(lambda row: row['Shares'] * prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
     lots['PercentChange'] = (lots['Value']/lots['Basis']-1)*100
     return lots
@@ -58,14 +58,14 @@ def getTickers(db):
     db.execute(sql)
     return [ticker[0] for ticker in db.fetchall()]
 
-def downloadPrice(db, start:str):
+def downloadPrice(db):
     tickers = getTickers(db)
     if not tickers: return None
-    data = yf.download(tickers, start=start, end=date.today())
+    data = yf.download(tickers, period='1d')
     return data['Close']
 
 def currentValue(db):
-    prices = downloadPrice(db, getEarliestDate(db))
+    prices = downloadPrice(db)
     if prices is None: return None
     investments = getInvestments(db)
     investments['Price'] = investments.apply(lambda row: prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
