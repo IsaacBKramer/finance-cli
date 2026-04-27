@@ -1,5 +1,7 @@
 import yfinance as yf
 import pandas as pd
+import sqlite3
+from datetime import date
 
 def createInvestmentsTable(db):
 
@@ -11,23 +13,50 @@ def createInvestmentsTable(db):
         'day INTEGER NOT NULL,'
         'ticker TEXT NOT NULL,'
         'cost REAL NOT NULL,'
-        'shares REAL NOT NULL'
+        'shares REAL NOT NULL,'
+        'account TEXT,'
+        'FOREIGN KEY (account) REFERENCES accounts(name)'
         ')'
     )
 
     db.execute(createInvestments)
     return True
 
-def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, shares:float):
-    sql = 'INSERT INTO investments (year, month, day, ticker, cost, shares) VALUES (?,?,?,?,?,?)'
-    values = (year, month, day, ticker.strip(), value, shares)
-    db.execute(sql, values)
+def getEarliestDate(db):
+    sql = 'SELECT year, month, day FROM investments ORDER BY year ASC, month ASC, day ASC LIMIT 1'
+    db.execute(sql)
+    data = db.fetchone()
+    return date(data[0],data[1],data[2])
+
+def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, shares:float, account:str):
+    sql = 'INSERT INTO investments (year, month, day, ticker, cost, shares, account) VALUES (?,?,?,?,?,?,?)'
+    values = (year, month, day, ticker.strip(), value, shares, account)
+    try:
+        db.execute(sql, values)
+    except sqlite3.IntegrityError as e:
+        print(f"\nINVALID DATA: {e}\n")
+        return False
     return True
 
-def getInvestments(db):
-    sql = 'SELECT ticker, SUM(shares) FROM investments GROUP BY ticker'
+def getLots(db):
+    sql = 'SELECT ticker, shares, cost FROM investments'
     db.execute(sql)
-    return pd.DataFrame(db.fetchall(), columns=['Ticker', 'Shares'])
+    lots = pd.DataFrame(db.fetchall(), columns=['Ticker','Shares','Basis'])
+    if lots.empty: return None
+    prices = downloadPrice(db)
+    lots['Value'] = lots.apply(lambda row: row['Shares'] * prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
+    lots['PercentChange'] = (lots['Value']/lots['Basis']-1)*100
+    return lots
+
+def getInvestments(db):
+    sql = 'SELECT ticker, SUM(shares),SUM(cost) FROM investments GROUP BY ticker'
+    db.execute(sql)
+    securities = pd.DataFrame(db.fetchall(), columns=['Ticker','Shares','Basis'])
+    if securities.empty: return None
+    prices = downloadPrice(db)
+    securities['Value'] = securities.apply(lambda row: row['Shares'] * prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
+    securities['PercentChange'] = (securities['Value']/securities['Basis']-1)*100
+    return securities
 
 def getTickers(db):
     sql = 'SELECT DISTINCT ticker FROM investments'
@@ -36,12 +65,6 @@ def getTickers(db):
 
 def downloadPrice(db):
     tickers = getTickers(db)
-    data = yf.download(tickers, period='1mo')
+    if not tickers: return None
+    data = yf.download(tickers, period='1d')
     return data['Close']
-
-def currentValue(db):
-    prices = downloadPrice(db)
-    investments = getInvestments(db)
-    investments['Price'] = investments.apply(lambda row: prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
-    investments['Total'] = investments['Price'] * investments['Shares']
-    print(investments)

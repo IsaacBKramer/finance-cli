@@ -1,4 +1,5 @@
 import sys
+import accounts
 import register
 import investments
 import csvreader
@@ -8,6 +9,7 @@ from pathlib import Path
 def startup():
     db = database.create('database.db')
     cur = database.cursor(db)
+    accounts.createAccountsTable(cur)
     register.createTransactionsTable(cur)
     investments.createInvestmentsTable(cur)
     print('\n########## WELCOME TO FINANCE-CLI ##########\n')
@@ -108,7 +110,7 @@ if __name__ == "__main__":
                         print("invalid input")
                         continue
                 elif command == 'view':
-                    register.viewTransactions(db)
+                    print(register.getTransactions(db).to_markdown(index=False))
                 elif command == 'exit':
                     break
                 else:
@@ -120,11 +122,23 @@ if __name__ == "__main__":
                 if command == 'add':
                     date = readDate()
                     ticker = input("Ticker: ").upper()
-                    shares = float(input("Shares: "))
                     cost = float(input("Cost: "))
-                    investments.addInvestment(cur,date[0],date[1],date[2],ticker,cost,shares)
+                    shares = float(input("Shares: "))
+                    account = input("Account name: ")
+                    investments.addInvestment(cur,date[0],date[1],date[2],ticker,cost,shares,account)
                 elif command == 'view':
-                    investments.currentValue(cur)
+                    command = input("security lots exit: ").lower()
+                    if command == 'security':
+                        df = investments.getInvestments(cur)
+                        if df is not None: print(df.to_markdown(index=False))
+                    elif command == 'lots':
+                        df = investments.getLots(cur)
+                        if df is not None: print(df.to_markdown(index=False))
+                    elif command == 'exit':
+                        break
+                    else:
+                        print('invalid input')
+                        continue
                 elif command == 'exit':
                     break
                 else:
@@ -135,9 +149,9 @@ if __name__ == "__main__":
                 command = input("add view exit: ").lower()
                 if command == 'add':
                     accountName = input("account name: ")
-                    register.addAccount(cur, accountName)
+                    accounts.addAccount(cur, accountName)
                 elif command == 'view':
-                    register.viewAccounts(db)
+                    accounts.viewAccounts(db)
                 elif command == 'exit':
                     break
                 else:
@@ -146,10 +160,9 @@ if __name__ == "__main__":
         elif command == 'totals':
             command = input("year month account: ").lower()
             if command == 'year':
-                register.viewAnnualTotals(cur)
-                # plotting.plotAnnualTotals(register)
+                print(register.getAnnualTotals(cur).to_markdown(index=False))
             elif command == 'month':
-                register.viewMonthlyTotals(cur)
+                print(register.getMonthlyTotals(cur).to_markdown(index=False))
             elif command == 'account':
                 print(register.getAccountTotals(cur))
         elif command == 'exit':
