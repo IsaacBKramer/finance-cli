@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+import sqlite3
 from datetime import date
 
 def createInvestmentsTable(db):
@@ -12,7 +13,9 @@ def createInvestmentsTable(db):
         'day INTEGER NOT NULL,'
         'ticker TEXT NOT NULL,'
         'cost REAL NOT NULL,'
-        'shares REAL NOT NULL'
+        'shares REAL NOT NULL,'
+        'account TEXT,'
+        'FOREIGN KEY (account) REFERENCES accounts(name)'
         ')'
     )
 
@@ -25,10 +28,14 @@ def getEarliestDate(db):
     date = db.fetchone()
     return f'{date[0]}-{date[1]}-{date[2]}'
 
-def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, shares:float):
-    sql = 'INSERT INTO investments (year, month, day, ticker, cost, shares) VALUES (?,?,?,?,?,?)'
-    values = (year, month, day, ticker.strip(), value, shares)
-    db.execute(sql, values)
+def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, shares:float, account:str):
+    sql = 'INSERT INTO investments (year, month, day, ticker, cost, shares, account) VALUES (?,?,?,?,?,?,?)'
+    values = (year, month, day, ticker.strip(), value, shares, account)
+    try:
+        db.execute(sql, values)
+    except sqlite3.IntegrityError as e:
+        print(f"\nINVALID DATA: {e}\n")
+        return False
     return True
 
 def getLots(db):

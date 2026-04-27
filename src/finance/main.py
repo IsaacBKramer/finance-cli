@@ -122,9 +122,10 @@ if __name__ == "__main__":
                 if command == 'add':
                     date = readDate()
                     ticker = input("Ticker: ").upper()
-                    shares = float(input("Shares: "))
                     cost = float(input("Cost: "))
-                    investments.addInvestment(cur,date[0],date[1],date[2],ticker,cost,shares)
+                    shares = float(input("Shares: "))
+                    account = input("Account name: ")
+                    investments.addInvestment(cur,date[0],date[1],date[2],ticker,cost,shares,account)
                 elif command == 'view':
                     command = input("security lots exit: ").lower()
                     if command == 'security':
