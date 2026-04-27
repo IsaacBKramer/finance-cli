@@ -21,8 +21,9 @@ def test_accounts(database):
 def test_valid_transaction(database):
     assert reg.addTransaction(database, 2026, 4, 25, 100.00, 'SAVINGS', 'INCOME', 'NONE') == True
     totals = reg.getAccountTotals(database)
-    assert totals['SAVINGS'] == 100.00
-
+    series = totals.loc[totals['account'] == 'SAVINGS', 'total']
+    assert len(series) == 1
+    assert series.iloc[0] == 100.00
 
 def test_invalid_transaction(database):
     assert reg.addTransaction(database, 2026, 4, 25, 100.00, 'CHECKING', 'INCOME', 'NONE') == False
