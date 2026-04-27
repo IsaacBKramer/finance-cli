@@ -27,7 +27,7 @@ def addTransaction(db:sqlite3.Cursor, year:int, month:int, day:int, value:float,
     try:
         db.execute(sql, values)
     except sqlite3.IntegrityError as e:
-        print(f"\nINVALID ACCOUNT NAME, TRANSACTION NOT ADDED")
+        print(f"\nINVALID DATA: {e}\n")
         return False
     return True
 
