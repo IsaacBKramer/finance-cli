@@ -86,14 +86,11 @@ def viewTransactions(db:sqlite3.Connection):
     print(df.to_markdown(index=False))
 
 def getAnnualTotals(db:sqlite3.Cursor):
-    db.execute('SELECT DISTINCT year FROM transactions')
-    years = db.fetchall()
-    years = [row[0] for row in years]
-    totals = []
-    for year in years:
-        db.execute(f'SELECT SUM(value) FROM transactions WHERE year <= {year}')
-        total = db.fetchone()
-        totals.append(total[0])
+    sql = 'WITH YearlyTotals AS (SELECT year,SUM(value) AS total FROM transactions GROUP BY year) SELECT year,SUM(total) OVER(ORDER BY year ASC) FROM YearlyTotals'
+    db.execute(sql)
+    data = db.fetchall()
+    years = [row[0] for row in data]
+    totals = [row[1] for row in data]
     annualTotals = {'year' : years, 'total' : totals}
     return pd.DataFrame(annualTotals)
 
