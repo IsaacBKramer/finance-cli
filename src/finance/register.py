@@ -98,19 +98,14 @@ def getAnnualTotals(db:sqlite3.Cursor):
     return pd.DataFrame(annualTotals)
 
 def getMonthlyTotals(db:sqlite3.Cursor):
-    db.execute('SELECT DISTINCT year, month FROM transactions ORDER BY year ASC, month ASC')
+    sql = 'WITH MonthlyTotals AS (SELECT year,month,SUM(value) AS total FROM transactions GROUP BY year,month) SELECT year,month,SUM(total) OVER(ORDER BY year ASC, month ASC) FROM MonthlyTotals'
+    db.execute(sql)
     data = db.fetchall()
     years = [row[0] for row in data]
     months = [row[1] for row in data]
-    print(years)
-    print(months)
-    totals = []
-    for i in range(len(years)):
-        db.execute(f'SELECT SUM(value) FROM transactions WHERE year < {years[i]} OR (year = {years[i]} AND month <={months[i]})')
-        total = db.fetchone()
-        totals.append(total[0])
-    annualTotals = {'year' : years, 'month' : months, 'total' : totals}
-    return pd.DataFrame(annualTotals)
+    totals = [row[2] for row in data]
+    monthlyTotals = {'year' : years, 'month' : months, 'total' : totals}
+    return pd.DataFrame(monthlyTotals)
 
 def viewAnnualTotals(db:sqlite3.Cursor):
     df = getAnnualTotals(db)
