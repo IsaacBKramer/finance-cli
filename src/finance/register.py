@@ -86,31 +86,23 @@ def viewTransactions(db:sqlite3.Connection):
     print(df.to_markdown(index=False))
 
 def getAnnualTotals(db:sqlite3.Cursor):
-    db.execute('SELECT DISTINCT year FROM transactions')
-    years = db.fetchall()
-    years = [row[0] for row in years]
-    totals = []
-    for year in years:
-        db.execute(f'SELECT SUM(value) FROM transactions WHERE year <= {year}')
-        total = db.fetchone()
-        totals.append(total[0])
+    sql = 'WITH YearlyTotals AS (SELECT year,SUM(value) AS total FROM transactions GROUP BY year) SELECT year,SUM(total) OVER(ORDER BY year ASC) FROM YearlyTotals'
+    db.execute(sql)
+    data = db.fetchall()
+    years = [row[0] for row in data]
+    totals = [row[1] for row in data]
     annualTotals = {'year' : years, 'total' : totals}
     return pd.DataFrame(annualTotals)
 
 def getMonthlyTotals(db:sqlite3.Cursor):
-    db.execute('SELECT DISTINCT year, month FROM transactions ORDER BY year ASC, month ASC')
+    sql = 'WITH MonthlyTotals AS (SELECT year,month,SUM(value) AS total FROM transactions GROUP BY year,month) SELECT year,month,SUM(total) OVER(ORDER BY year ASC, month ASC) FROM MonthlyTotals'
+    db.execute(sql)
     data = db.fetchall()
     years = [row[0] for row in data]
     months = [row[1] for row in data]
-    print(years)
-    print(months)
-    totals = []
-    for i in range(len(years)):
-        db.execute(f'SELECT SUM(value) FROM transactions WHERE year < {years[i]} OR (year = {years[i]} AND month <={months[i]})')
-        total = db.fetchone()
-        totals.append(total[0])
-    annualTotals = {'year' : years, 'month' : months, 'total' : totals}
-    return pd.DataFrame(annualTotals)
+    totals = [row[2] for row in data]
+    monthlyTotals = {'year' : years, 'month' : months, 'total' : totals}
+    return pd.DataFrame(monthlyTotals)
 
 def viewAnnualTotals(db:sqlite3.Cursor):
     df = getAnnualTotals(db)
@@ -121,18 +113,15 @@ def viewMonthlyTotals(db:sqlite3.Cursor):
     print(df.to_markdown(index=False))
 
 def getAccountTotals(db:sqlite3.Cursor):
-    totals = {}
-    db.execute('SELECT DISTINCT account FROM transactions')
-    accounts = db.fetchall()
-    accounts = [row[0] for row in accounts]
-    for account in accounts:
-        db.execute(f'SELECT SUM(value) FROM transactions WHERE account = "{account}"')
-        total = db.fetchone()
-        totals[account] = total[0]
-    return totals
+    sql = 'SELECT account,SUM(value) FROM transactions GROUP BY account'
+    db.execute(sql)
+    data = db.fetchall()
+    accounts = [row[0] for row in data]
+    totals = [row[1] for row in data]
+    accountTotals = {'account' : accounts, 'total' : totals}
+    return pd.DataFrame(accountTotals)
 
 def addTransactionsFromDf(db:sqlite3.Cursor, df):
-    for index,row in df.iterrows():
-        sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
-        values = (row['year'], row['month'], row['day'], row['value'], row['account'], row['category'], row['tag'])
-        db.execute(sql, values)
+    sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
+    values = zip(df['year'], df['month'], df['day'], df['value'], df['account'], df['category'], df['tag'])
+    db.executemany(sql, values)
