@@ -113,15 +113,13 @@ def viewMonthlyTotals(db:sqlite3.Cursor):
     print(df.to_markdown(index=False))
 
 def getAccountTotals(db:sqlite3.Cursor):
-    totals = {}
-    db.execute('SELECT DISTINCT account FROM transactions')
-    accounts = db.fetchall()
-    accounts = [row[0] for row in accounts]
-    for account in accounts:
-        db.execute(f'SELECT SUM(value) FROM transactions WHERE account = "{account}"')
-        total = db.fetchone()
-        totals[account] = total[0]
-    return totals
+    sql = 'SELECT account,SUM(value) FROM transactions GROUP BY account'
+    db.execute(sql)
+    data = db.fetchall()
+    accounts = [row[0] for row in data]
+    totals = [row[1] for row in data]
+    accountTotals = {'account' : accounts, 'total' : totals}
+    return pd.DataFrame(accountTotals)
 
 def addTransactionsFromDf(db:sqlite3.Cursor, df):
     for index,row in df.iterrows():
