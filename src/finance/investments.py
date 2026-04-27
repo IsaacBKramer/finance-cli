@@ -49,9 +49,14 @@ def getLots(db):
     return lots
 
 def getInvestments(db):
-    sql = 'SELECT ticker, SUM(shares) FROM investments GROUP BY ticker'
+    sql = 'SELECT ticker, SUM(shares),SUM(cost) FROM investments GROUP BY ticker'
     db.execute(sql)
-    return pd.DataFrame(db.fetchall(), columns=['Ticker','Shares'])
+    securities = pd.DataFrame(db.fetchall(), columns=['Ticker','Shares','Basis'])
+    if securities.empty: return None
+    prices = downloadPrice(db)
+    securities['Value'] = securities.apply(lambda row: row['Shares'] * prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
+    securities['PercentChange'] = (securities['Value']/securities['Basis']-1)*100
+    return securities
 
 def getTickers(db):
     sql = 'SELECT DISTINCT ticker FROM investments'
@@ -63,11 +68,3 @@ def downloadPrice(db):
     if not tickers: return None
     data = yf.download(tickers, period='1d')
     return data['Close']
-
-def currentValue(db):
-    prices = downloadPrice(db)
-    if prices is None: return None
-    investments = getInvestments(db)
-    investments['Price'] = investments.apply(lambda row: prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
-    investments['Total'] = investments['Price'] * investments['Shares']
-    print(investments)

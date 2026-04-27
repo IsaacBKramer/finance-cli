@@ -129,10 +129,11 @@ if __name__ == "__main__":
                 elif command == 'view':
                     command = input("security lots exit: ").lower()
                     if command == 'security':
-                        investments.currentValue(cur)
+                        df = investments.getInvestments(cur)
+                        if df is not None: print(df.to_markdown(index=False))
                     elif command == 'lots':
                         df = investments.getLots(cur)
-                        if df is not None: print(investments.getLots(cur))
+                        if df is not None: print(df.to_markdown(index=False))
                     elif command == 'exit':
                         break
                     else:
