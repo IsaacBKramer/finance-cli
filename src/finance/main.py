@@ -110,7 +110,7 @@ if __name__ == "__main__":
                         print("invalid input")
                         continue
                 elif command == 'view':
-                    register.viewTransactions(db)
+                    print(register.getTransactions(db).to_markdown(index=False))
                 elif command == 'exit':
                     break
                 else:
@@ -158,10 +158,9 @@ if __name__ == "__main__":
         elif command == 'totals':
             command = input("year month account: ").lower()
             if command == 'year':
-                register.viewAnnualTotals(cur)
-                # plotting.plotAnnualTotals(register)
+                print(register.getAnnualTotals(cur).to_markdown(index=False))
             elif command == 'month':
-                register.viewMonthlyTotals(cur)
+                print(register.getMonthlyTotals(cur).to_markdown(index=False))
             elif command == 'account':
                 print(register.getAccountTotals(cur))
         elif command == 'exit':

@@ -65,9 +65,8 @@ def modifyTransactionTag(db:sqlite3.Cursor, id:int, tag:str):
     db.execute(sql,(tag,id))
     return True
 
-def viewTransactions(db:sqlite3.Connection):
-    df = pd.read_sql_query("SELECT * FROM transactions ORDER BY year ASC, month ASC, day ASC", db)
-    print(df.to_markdown(index=False))
+def getTransactions(db:sqlite3.Connection):
+    return pd.read_sql_query("SELECT * FROM transactions ORDER BY year ASC, month ASC, day ASC", db)
 
 def getAnnualTotals(db:sqlite3.Cursor):
     sql = 'WITH YearlyTotals AS (SELECT year,SUM(value) AS total FROM transactions GROUP BY year) SELECT year,SUM(total) OVER(ORDER BY year ASC) FROM YearlyTotals'
@@ -87,14 +86,6 @@ def getMonthlyTotals(db:sqlite3.Cursor):
     totals = [row[2] for row in data]
     monthlyTotals = {'year' : years, 'month' : months, 'total' : totals}
     return pd.DataFrame(monthlyTotals)
-
-def viewAnnualTotals(db:sqlite3.Cursor):
-    df = getAnnualTotals(db)
-    print(df.to_markdown(index=False))
-
-def viewMonthlyTotals(db:sqlite3.Cursor):
-    df = getMonthlyTotals(db)
-    print(df.to_markdown(index=False))
 
 def getAccountTotals(db:sqlite3.Cursor):
     sql = 'SELECT account,SUM(value) FROM transactions GROUP BY account'
