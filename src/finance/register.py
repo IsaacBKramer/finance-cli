@@ -122,7 +122,6 @@ def getAccountTotals(db:sqlite3.Cursor):
     return pd.DataFrame(accountTotals)
 
 def addTransactionsFromDf(db:sqlite3.Cursor, df):
-    for index,row in df.iterrows():
-        sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
-        values = (row['year'], row['month'], row['day'], row['value'], row['account'], row['category'], row['tag'])
-        db.execute(sql, values)
+    sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
+    values = zip(df['year'], df['month'], df['day'], df['value'], df['account'], df['category'], df['tag'])
+    db.executemany(sql, values)
