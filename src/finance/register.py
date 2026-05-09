@@ -3,6 +3,7 @@ import sqlite3
 
 
 def createTransactionsTable(db:sqlite3.Cursor):
+    """create a transactions table in the database"""
     
     createTransactions = (
         'CREATE TABLE IF NOT EXISTS transactions ('
@@ -22,6 +23,7 @@ def createTransactionsTable(db:sqlite3.Cursor):
     return True
 
 def addTransaction(db:sqlite3.Cursor, year:int, month:int, day:int, value:float, account:str, category:str, tag:str):
+    """add a transaction to the transactions table"""
     sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
     values = (year, month, day, value, account.strip(), category, tag)
     try:
@@ -32,21 +34,25 @@ def addTransaction(db:sqlite3.Cursor, year:int, month:int, day:int, value:float,
     return True
 
 def deleteTransaction(db:sqlite3.Cursor, id:int):
+    """remove a transaction from the transactions table"""
     sql = f'DELETE FROM transactions WHERE id={id}'
     db.execute(sql)
     return True
 
 def modifyTransactionDate(db:sqlite3.Cursor, id:int, date):
+    """modify the date of a transaction"""
     sql = f'UPDATE transactions SET year=? SET month=? SET day=? WHERE id=?'
     db.execute(sql,(date[0],date[1],date[2],id))
     return True
 
 def modifyTransactionValue(db:sqlite3.Cursor, id:int, value:float):
+    """modify the value of a transaction"""
     sql = f'UPDATE transactions SET value=? WHERE id=?'
     db.execute(sql,(value,id))
     return True
 
 def modifyTransactionAccount(db:sqlite3.Cursor, id:int, account:str):
+    """modify the account that a transaction is associated with"""
     sql = f'UPDATE transactions SET account=? WHERE id=?'
     try:
         db.execute(sql,(account.strip(),id))
@@ -55,20 +61,23 @@ def modifyTransactionAccount(db:sqlite3.Cursor, id:int, account:str):
         return False
     return True
 
-def modifyTransactionCategory(db:sqlite3.Cursor, id:int, category:str):
+def modifyTransactionCategory(db:sqlite3.Cursor, id:int, category:str) -> bool:
+    """modify a transaction's category"""
     sql = f'UPDATE transactions SET category=? WHERE id=?'
     db.execute(sql,(category,id))
     return True
 
-def modifyTransactionTag(db:sqlite3.Cursor, id:int, tag:str):
+def modifyTransactionTag(db:sqlite3.Cursor, id:int, tag:str) -> bool:
+    """modify a transaction's tag"""
     sql = f'UPDATE transactions SET tag=? WHERE id=?'
     db.execute(sql,(tag,id))
     return True
 
-def getTransactions(db:sqlite3.Connection):
+def getTransactions(db:sqlite3.Connection) -> pd.DataFrame:
     return pd.read_sql_query("SELECT * FROM transactions ORDER BY year ASC, month ASC, day ASC", db)
 
-def getAnnualTotals(db:sqlite3.Cursor):
+def getAnnualTotals(db:sqlite3.Cursor) -> pd.DataFrame:
+    """get the total value of all transactions at the end of each year"""
     sql = 'WITH YearlyTotals AS (SELECT year,SUM(value) AS total FROM transactions GROUP BY year) SELECT year,SUM(total) OVER(ORDER BY year ASC) FROM YearlyTotals'
     db.execute(sql)
     data = db.fetchall()
@@ -77,7 +86,8 @@ def getAnnualTotals(db:sqlite3.Cursor):
     annualTotals = {'year' : years, 'total' : totals}
     return pd.DataFrame(annualTotals)
 
-def getMonthlyTotals(db:sqlite3.Cursor):
+def getMonthlyTotals(db:sqlite3.Cursor) -> pd.DataFrame:
+    """get the total value of all transactions at the end of each month"""
     sql = 'WITH MonthlyTotals AS (SELECT year,month,SUM(value) AS total FROM transactions GROUP BY year,month) SELECT year,month,SUM(total) OVER(ORDER BY year ASC, month ASC) FROM MonthlyTotals'
     db.execute(sql)
     data = db.fetchall()
@@ -87,7 +97,8 @@ def getMonthlyTotals(db:sqlite3.Cursor):
     monthlyTotals = {'year' : years, 'month' : months, 'total' : totals}
     return pd.DataFrame(monthlyTotals)
 
-def getAccountTotals(db:sqlite3.Cursor):
+def getAccountTotals(db:sqlite3.Cursor) -> pd.DataFrame:
+    """get the total value of each account for all time"""
     sql = 'SELECT account,SUM(value) FROM transactions GROUP BY account'
     db.execute(sql)
     data = db.fetchall()
@@ -97,6 +108,7 @@ def getAccountTotals(db:sqlite3.Cursor):
     return pd.DataFrame(accountTotals)
 
 def addTransactionsFromDf(db:sqlite3.Cursor, df):
+    """add a batch of transactions from a pandas dataframe"""
     sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
     values = zip(df['year'], df['month'], df['day'], df['value'], df['account'], df['category'], df['tag'])
     db.executemany(sql, values)
