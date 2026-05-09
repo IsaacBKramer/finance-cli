@@ -118,7 +118,7 @@ if __name__ == "__main__":
                     continue
         elif command == 'investments':
             while True:
-                command = input("add view exit: ").lower()
+                command = input("add delete view exit: ").lower()
                 if command == 'add':
                     date = readDate()
                     ticker = input("Ticker: ").upper()
@@ -126,6 +126,9 @@ if __name__ == "__main__":
                     shares = float(input("Shares: "))
                     account = input("Account name: ")
                     investments.addInvestment(cur,date[0],date[1],date[2],ticker,cost,shares,account)
+                elif command == 'delete':
+                    id = int(input("id: "))
+                    investments.deleteInvestment(cur, id)
                 elif command == 'view':
                     command = input("security lots exit: ").lower()
                     if command == 'security':

@@ -41,11 +41,17 @@ def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, sha
         return False
     return True
 
+def deleteInvestment(db:sqlite3.Cursor, id:int) -> bool:
+    """remove an investment from the investments table"""
+    sql = f'DELETE FROM investments WHERE id={id}'
+    db.execute(sql)
+    return True
+
 def getLots(db) -> pd.Dataframe:
     """get a dataframe of every investment lot from the investments table"""
-    sql = 'SELECT ticker, shares, cost FROM investments'
+    sql = 'SELECT id, ticker, shares, cost FROM investments'
     db.execute(sql)
-    lots = pd.DataFrame(db.fetchall(), columns=['Ticker','Shares','Basis'])
+    lots = pd.DataFrame(db.fetchall(), columns=['ID', 'Ticker','Shares','Basis'])
     if lots.empty: return None
     prices = downloadPrice(db)
     lots['Value'] = lots.apply(lambda row: row['Shares'] * prices.iloc[-1,prices.columns.get_loc(row['Ticker'])], axis=1)
