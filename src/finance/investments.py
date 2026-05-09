@@ -4,6 +4,7 @@ import sqlite3
 from datetime import date
 
 def createInvestmentsTable(db) -> bool:
+    """create a table of all investments in the database"""
 
     createInvestments = (
         'CREATE TABLE IF NOT EXISTS investments ('
@@ -23,12 +24,14 @@ def createInvestmentsTable(db) -> bool:
     return True
 
 def getEarliestDate(db) -> date:
+    """get the earliest dated row from the investments table"""
     sql = 'SELECT year, month, day FROM investments ORDER BY year ASC, month ASC, day ASC LIMIT 1'
     db.execute(sql)
     data = db.fetchone()
     return date(data[0],data[1],data[2])
 
 def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, shares:float, account:str) -> bool:
+    """add a new investment to the investments table in the database"""
     sql = 'INSERT INTO investments (year, month, day, ticker, cost, shares, account) VALUES (?,?,?,?,?,?,?)'
     values = (year, month, day, ticker.strip(), value, shares, account)
     try:
@@ -39,6 +42,7 @@ def addInvestment(db, year:int, month:int, day:int, ticker:str, value:float, sha
     return True
 
 def getLots(db) -> pd.Dataframe:
+    """get a dataframe of every investment lot from the investments table"""
     sql = 'SELECT ticker, shares, cost FROM investments'
     db.execute(sql)
     lots = pd.DataFrame(db.fetchall(), columns=['Ticker','Shares','Basis'])
@@ -49,6 +53,7 @@ def getLots(db) -> pd.Dataframe:
     return lots
 
 def getInvestments(db) -> pd.DataFrame:
+    """summarize investments by type """
     sql = 'SELECT ticker, SUM(shares),SUM(cost) FROM investments GROUP BY ticker'
     db.execute(sql)
     securities = pd.DataFrame(db.fetchall(), columns=['Ticker','Shares','Basis'])
@@ -59,11 +64,13 @@ def getInvestments(db) -> pd.DataFrame:
     return securities
 
 def getTickers(db) -> list[str]:
+    """get a list of every unique investment ticker in the investments table"""
     sql = 'SELECT DISTINCT ticker FROM investments'
     db.execute(sql)
     return [ticker[0] for ticker in db.fetchall()]
 
 def downloadPrice(db) -> list[str]:
+    """download investment ticker prices from yfinance"""
     tickers = getTickers(db)
     if not tickers: return None
     data = yf.download(tickers, period='1d')
