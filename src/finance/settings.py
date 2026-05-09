@@ -9,4 +9,8 @@ def setEnforceAccounts(db:sqlite3.Cursor, setting:bool):
 def checkEnforceAccounts(db:sqlite3.Cursor):
     sql = 'PRAGMA foreign_keys'
     db.execute(sql)
-    status = [row[0] for row in db.fetchone()]
+    row = db.fetchone()
+    if row is None:
+        return False
+    status = bool(row[0])
+    return status

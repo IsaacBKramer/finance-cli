@@ -4,6 +4,7 @@ import register
 import investments
 import csvreader
 import database
+import settings
 from pathlib import Path
 
 def startup():
@@ -166,7 +167,15 @@ if __name__ == "__main__":
             elif command == 'account':
                 print(register.getAccountTotals(cur))
         elif command == 'settings':
-            command = input("enforce")
+            user_input = input("enforce (on/off): ").lower()
+            if user_input in ('on', 'yes'):
+                enforce_value = True
+            elif user_input in ('off', 'no'):
+                enforce_value = False
+            else:
+                print("invalid input, use 'on' or 'off'")
+                continue
+            settings.setEnforceAccounts(cur, enforce_value)
         elif command == 'exit':
             shutdown(db)
         else: 
