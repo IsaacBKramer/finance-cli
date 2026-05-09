@@ -53,7 +53,7 @@ def readDate():
 if __name__ == "__main__":
     db, cur = startup()
     while True:
-        command = input("transactions investments accounts totals exit: ").lower()
+        command = input("transactions investments accounts totals settings exit: ").lower()
         if command == 'transactions':
             while True:
                 command = input("add delete modify view exit: ").lower()
@@ -165,6 +165,8 @@ if __name__ == "__main__":
                 print(register.getMonthlyTotals(cur).to_markdown(index=False))
             elif command == 'account':
                 print(register.getAccountTotals(cur))
+        elif command == 'settings':
+            command = input("enforce")
         elif command == 'exit':
             shutdown(db)
         else: 
