@@ -2,7 +2,7 @@ import pandas as pd
 import sqlite3
 
 
-def createTransactionsTable(db:sqlite3.Cursor):
+def createTransactionsTable(db:sqlite3.Cursor) -> bool:
     """create a transactions table in the database"""
     
     createTransactions = (
@@ -22,7 +22,7 @@ def createTransactionsTable(db:sqlite3.Cursor):
     db.execute(createTransactions)
     return True
 
-def addTransaction(db:sqlite3.Cursor, year:int, month:int, day:int, value:float, account:str, category:str, tag:str):
+def addTransaction(db:sqlite3.Cursor, year:int, month:int, day:int, value:float, account:str, category:str, tag:str) -> bool:
     """add a transaction to the transactions table"""
     sql = 'INSERT INTO transactions (year, month, day, value, account, category, tag) VALUES (?,?,?,?,?,?,?)'
     values = (year, month, day, value, account.strip(), category, tag)
@@ -33,25 +33,25 @@ def addTransaction(db:sqlite3.Cursor, year:int, month:int, day:int, value:float,
         return False
     return True
 
-def deleteTransaction(db:sqlite3.Cursor, id:int):
+def deleteTransaction(db:sqlite3.Cursor, id:int) -> bool:
     """remove a transaction from the transactions table"""
     sql = f'DELETE FROM transactions WHERE id={id}'
     db.execute(sql)
     return True
 
-def modifyTransactionDate(db:sqlite3.Cursor, id:int, date):
+def modifyTransactionDate(db:sqlite3.Cursor, id:int, date) -> bool:
     """modify the date of a transaction"""
     sql = f'UPDATE transactions SET year=? SET month=? SET day=? WHERE id=?'
     db.execute(sql,(date[0],date[1],date[2],id))
     return True
 
-def modifyTransactionValue(db:sqlite3.Cursor, id:int, value:float):
+def modifyTransactionValue(db:sqlite3.Cursor, id:int, value:float) -> bool:
     """modify the value of a transaction"""
     sql = f'UPDATE transactions SET value=? WHERE id=?'
     db.execute(sql,(value,id))
     return True
 
-def modifyTransactionAccount(db:sqlite3.Cursor, id:int, account:str):
+def modifyTransactionAccount(db:sqlite3.Cursor, id:int, account:str) -> bool:
     """modify the account that a transaction is associated with"""
     sql = f'UPDATE transactions SET account=? WHERE id=?'
     try:
