@@ -151,7 +151,7 @@ if __name__ == "__main__":
                     accountName = input("account name: ")
                     accounts.addAccount(cur, accountName)
                 elif command == 'view':
-                    accounts.viewAccounts(db)
+                    print(accounts.getAccounts(db).to_markdown(index=False))
                 elif command == 'exit':
                     break
                 else:
