@@ -13,15 +13,18 @@ def database():
     db.close()
 
 def test_tables(database):
+    """test functions that create database tables"""
     assert acc.createAccountsTable(database) == True
     assert reg.createTransactionsTable(database) == True
     assert inv.createInvestmentsTable(database) == True
 
 def test_accounts(database):
+    """test functions that add accounts to accounts table"""
     assert acc.addAccount(database, 'SAVINGS') == True
     assert acc.addAccount(database, 'BROKERAGE') == True
 
 def test_valid_transaction(database):
+    """test the creation of transactions"""
     assert reg.addTransaction(database, 2026, 4, 25, 100.00, 'SAVINGS', 'INCOME', 'NONE') == True
     totals = reg.getAccountTotals(database)
     series = totals.loc[totals['account'] == 'SAVINGS', 'total']
@@ -29,9 +32,11 @@ def test_valid_transaction(database):
     assert series.iloc[0] == 100.00
 
 def test_invalid_transaction(database):
+    """test the creation and rejection of invalid transactions"""
     assert reg.addTransaction(database, 2026, 4, 25, 100.00, 'CHECKING', 'INCOME', 'NONE') == False
 
 def test_valid_investments(database):
+    """test the creation of investments"""
     assert inv.addInvestment(database, 2026, 4, 25, 'VTSAX', 500, 1.0, 'BROKERAGE') == True
     assert inv.addInvestment(database, 2026, 4, 25, 'FXAIX', 1000, 2.0, 'BROKERAGE') == True
 
@@ -46,8 +51,10 @@ def test_valid_investments(database):
     assert series.iloc[0] == 2.0
 
 def test_invalid_investment(database):
+    """test the creation and rejection of invalid investments"""
     assert inv.addInvestment(database, 2026, 4, 25, 'FXAIX', 1000, 2.0, 'IRA') == False
 
 def test_get_tickers(database):
+    """test getting investment tickers"""
     tickers = inv.getTickers(database)
     assert len(tickers) == 2

@@ -1,10 +1,11 @@
-# Overview 
+# finance 
 
-I'm addicted to Quicken. I hate that Quicken costs money and sort of sucks. I also know how to write (a little bit of) Python. So for those of you who are command line inclined, this tool is meant to be a free Quicken alternative.
+I love Quicken, but I don't love that Quicken costs money. I also know how to write (a little bit of) Python. So for those of you who are command line inclined, this tool is meant to be a free Quicken alternative with far fewer bells and whistles.
 
-This program uses sqlite3 to store transactions in a register. The database file is saved locally at the root of the repo. It will be created the first time you run the program if it does not already exist.
+This program uses sqlite3 to store transactions and investments in tables. The `database.db` file is saved locally at the root of the repo. It will be created the first time you run the program if it does not already exist.
 
-# Setup
+
+## Setup
 
 First set up a virtual environment in the root of the repo `python3 -m venv <environment-name>`.
 
@@ -14,7 +15,8 @@ Install the required dependencies with the virtual environment active `pip insta
 
 Run the program with `python3 main.py`
 
-# Importing Transactions from CSV
+
+## Importing Transactions from CSV
 
 Transactions can be bulk imported from csv. The currently expected formats for csv fiels are either a custom default, or the Quicken export format. The custom default adheres to the following format:
 
@@ -23,4 +25,3 @@ Transactions can be bulk imported from csv. The currently expected formats for c
 `year`, `month`, `day`, and `value` are required fields.
 
 To export transactions in Quicken for Mac select the transactions in the register and click `File` -> `Export` -> `Register Transactions to CSV File...`.
-

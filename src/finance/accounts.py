@@ -20,7 +20,6 @@ def addAccount(db:sqlite3.Cursor, account:str) -> bool:
     db.execute(sql, values)
     return True
 
-def viewAccounts(db:sqlite3.Connection) -> None:
+def getAccounts(db:sqlite3.Connection) -> pd.DataFrame:
     """view all accounts currently in accounts table in database"""
-    df = pd.read_sql_query("SELECT * FROM accounts", db)
-    print(df.to_markdown(index=False))
+    return pd.read_sql_query("SELECT * FROM accounts", db)
