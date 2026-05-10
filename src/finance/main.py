@@ -1,4 +1,5 @@
 import sys
+import sqlite3
 import accounts
 import register
 import investments
@@ -6,7 +7,8 @@ import csvreader
 import database
 from pathlib import Path
 
-def startup():
+def startup() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
+    """initialize database and return a cursor to it"""
     db = database.create('database.db')
     cur = database.cursor(db)
     accounts.createAccountsTable(cur)
@@ -16,12 +18,14 @@ def startup():
     print('Follow the prompts or type "exit" at any time to terminate the program.\n')
     return db, cur
 
-def shutdown(db):
+def shutdown(db) -> None:
+    """call database shutdown and exit"""
     database.shutdown(db)
     print('goodbye')
     sys.exit(0)
 
-def readDate():
+def readDate() -> tuple[int,int,int]:
+    """read a date tuple from a string and return it"""
     while True:
         dateStr = input("Date YYYYMMDD: ")
         if len(dateStr) != 8:
