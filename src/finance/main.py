@@ -1,6 +1,7 @@
 import sys
 import sqlite3
 import accounts
+import categories
 import register
 import investments
 import csvreader
@@ -12,6 +13,7 @@ def startup() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     db = database.create('database.db')
     cur = database.cursor(db)
     accounts.createAccountsTable(cur)
+    categories.createCategoriesTable(cur)
     register.createTransactionsTable(cur)
     investments.createInvestmentsTable(cur)
     print('\n########## WELCOME TO FINANCE-CLI ##########\n')
@@ -67,7 +69,8 @@ if __name__ == "__main__":
                         date = readDate()
                         value = float(input("Value: "))
                         account = str(input("Account Name: "))
-                        category = str(input("Category: "))
+                        print(categories.getCategories(db))
+                        category = str(input("Category (from above options): "))
                         tag = str(input("Tag: "))
                         register.addTransaction(cur, date[0],date[1],date[2],value,account,category,tag)
                     elif command == 'csv': 
@@ -103,7 +106,8 @@ if __name__ == "__main__":
                         account = str(input("Account Name: "))
                         register.modifyTransactionAccount(cur, id, account)
                     elif command == 'category':
-                        category = str(input("Category: "))
+                        print(categories.getCategories(db))
+                        category = str(input("Category (from above options): "))
                         register.modifyTransactionCategory(cur, id, category)
                     elif command == 'tag':
                         tag = str(input("Tag: "))

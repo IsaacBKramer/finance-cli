@@ -16,6 +16,7 @@ def createTransactionsTable(db:sqlite3.Cursor) -> bool:
         'category TEXT,'
         'tag TEXT,'
         'FOREIGN KEY (account) REFERENCES accounts(name)'
+        'FOREIGN KEY (category) REFERENCES categories(name)'
         ')'
     )
 
@@ -64,7 +65,11 @@ def modifyTransactionAccount(db:sqlite3.Cursor, id:int, account:str) -> bool:
 def modifyTransactionCategory(db:sqlite3.Cursor, id:int, category:str) -> bool:
     """modify a transaction's category"""
     sql = f'UPDATE transactions SET category=? WHERE id=?'
-    db.execute(sql,(category,id))
+    try:
+        db.execute(sql,(category,id))
+    except sqlite3.IntegrityError as e:
+        print(f"\n INVALID CATEGORY, TRANSACTION NOT MODIFIED, {e}")
+        return False
     return True
 
 def modifyTransactionTag(db:sqlite3.Cursor, id:int, tag:str) -> bool:
