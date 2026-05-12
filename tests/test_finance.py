@@ -1,6 +1,7 @@
 import pytest
 import finance.database as dat
 import finance.accounts as acc
+import finance.categories as cat
 import finance.register as reg
 import finance.investments as inv
 
@@ -17,6 +18,7 @@ def test_tables(database):
     assert acc.createAccountsTable(database) == True
     assert reg.createTransactionsTable(database) == True
     assert inv.createInvestmentsTable(database) == True
+    assert cat.createCategoriesTable(database) == True
 
 def test_accounts(database):
     """test functions that add accounts to accounts table"""
@@ -34,6 +36,7 @@ def test_valid_transaction(database):
 def test_invalid_transaction(database):
     """test the creation and rejection of invalid transactions"""
     assert reg.addTransaction(database, 2026, 4, 25, 100.00, 'CHECKING', 'INCOME', 'NONE') == False
+    assert reg.addTransaction(database, 2026, 4, 25, 100.00, 'SAVINGS', 'TAXES', 'NONE') == False
 
 def test_valid_investments(database):
     """test the creation of investments"""
