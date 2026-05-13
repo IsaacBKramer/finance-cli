@@ -29,5 +29,8 @@ def addDefaultCategories(db:sqlite3.Cursor) -> bool:
     """add a list of standard categories to categories table"""
     categories = ["TRANSIT", "FOOD", "HOUSING", "INCOME", "UTILITIES"]
     sql = 'INSERT INTO categories (name) VALUES (?)'
-    db.executemany(sql, [(item,) for item in categories])
+    try:
+        db.executemany(sql, [(item,) for item in categories])
+    except sqlite3.IntegrityError:
+        pass
     return True
