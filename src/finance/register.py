@@ -80,10 +80,14 @@ def modifyTransactionTag(db:sqlite3.Cursor, id:int, tag:str) -> bool:
     return True
 
 def matchTransactions(db:sqlite3.Cursor, id1:int, id2:int):
-    sql = f'UPDATE transactions SET match=? WHERE id=?'
-    db.execute(sql, (id1,id2))
-    db.execute(sql, (id2,id1))
-    return True
+    sql = f'SELECT value FROM transactions WHERE id IN (?,?)'
+    db.execute(sql,(id1,id2))
+    if sum([value[0] for value in db.fetchall()]) == 0:
+        sql = f'UPDATE transactions SET match=? WHERE id=?'
+        db.execute(sql, (id1,id2))
+        db.execute(sql, (id2,id1))
+        return True
+    return False
 
 def unmatchTransactions(db:sqlite3.Cursor, id1:int, id2:int):
     sql = f'UPDATE transactions SET match=NULL WHERE id=?'
