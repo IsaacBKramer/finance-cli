@@ -62,7 +62,7 @@ if __name__ == "__main__":
         command = input("transactions investments accounts totals exit: ").lower()
         if command == 'transactions':
             while True:
-                command = input("add delete modify view exit: ").lower()
+                command = input("add delete modify match unmatch view exit: ").lower()
                 if command =='add':
                     command = input("manual csv: ").lower()
                     if command == 'manual':
@@ -117,6 +117,14 @@ if __name__ == "__main__":
                     else:
                         print("invalid input")
                         continue
+                elif command == 'match':
+                    id1 = int(input("first transaction id: "))
+                    id2 = int(input("second transaction id: "))
+                    register.matchTransactions(cur, id1, id2)
+                elif command == 'unmatch':
+                    id1 = int(input("first transaction id: "))
+                    id2 = int(input("second transaction id: "))
+                    register.unmatchTransactions(cur, id1, id2)
                 elif command == 'view':
                     print(register.getTransactions(db).to_markdown(index=False))
                 elif command == 'exit':

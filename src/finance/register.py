@@ -15,6 +15,7 @@ def createTransactionsTable(db:sqlite3.Cursor) -> bool:
         'account TEXT,'
         'category TEXT,'
         'tag TEXT,'
+        'match INTEGER UNIQUE REFERENCES transactions(id),'
         'FOREIGN KEY (account) REFERENCES accounts(name)'
         'FOREIGN KEY (category) REFERENCES categories(name)'
         ')'
@@ -76,6 +77,22 @@ def modifyTransactionTag(db:sqlite3.Cursor, id:int, tag:str) -> bool:
     """modify a transaction's tag"""
     sql = f'UPDATE transactions SET tag=? WHERE id=?'
     db.execute(sql,(tag,id))
+    return True
+
+def matchTransactions(db:sqlite3.Cursor, id1:int, id2:int):
+    sql = f'SELECT value FROM transactions WHERE id IN (?,?)'
+    db.execute(sql,(id1,id2))
+    if sum([value[0] for value in db.fetchall()]) == 0:
+        sql = f'UPDATE transactions SET match=? WHERE id=?'
+        db.execute(sql, (id1,id2))
+        db.execute(sql, (id2,id1))
+        return True
+    return False
+
+def unmatchTransactions(db:sqlite3.Cursor, id1:int, id2:int):
+    sql = f'UPDATE transactions SET match=NULL WHERE id=?'
+    db.execute(sql, (id1,))
+    db.execute(sql, (id2,))
     return True
 
 def getTransactions(db:sqlite3.Connection) -> pd.DataFrame:
